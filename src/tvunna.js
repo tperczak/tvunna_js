@@ -47,7 +47,7 @@
       if (domain) {
         cookieDomain = "; domain=" + domain;
       }
-      document.cookie = name + "=" + escape(value) + expires + cookieDomain + "; path=/";
+      document.cookie = name + "=" + escape(value) + expires + cookieDomain + "; SameSite=None; Secure; path=/";
     },
     get: function (name) {
       var i, c;
