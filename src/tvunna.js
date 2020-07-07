@@ -382,6 +382,7 @@
       data.href = presence(target.href),
       data.tag = presence(target.tagName.toLowerCase()),
       data.id = presence(target.id),
+      data.text = presence(data.tag == "input" ? target.value : (target.textContent || target.innerText || target.innerHTML).replace(/[\s\r\n]+/g, " ").trim()),
       data.class = presence(target.className),
       data.section = getClosestSection(target),
       log("tvunna.trackChanges");
