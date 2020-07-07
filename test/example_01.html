@@ -1,0 +1,41 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<meta charset="UTF-8"> 
+
+<head>
+
+  <title>JavaScript events</title>
+  <script src="js/mqttws31.min.js" type="text/javascript"></script>
+  <script src="js/tvunna.min.js" type="text/javascript"></script>
+  <script type = "text/javascript" language = "javascript" >
+    
+    tvunna.configure( { host: "tvunna.io", // MQTT broker
+                        port: 8443,        // port
+                        useSSL: true,
+                        topicIn: "tvunna/in",
+                        app_id: "demo-js",
+                        cookies: true
+                      });
+     
+    //Conect to the MQTT broker
+    tvunna.MQTTconnect();
+    
+    // Start track all evenets
+    tvunna.trackAll();
+
+  </script> 
+</head>
+
+
+<body>
+  <h1>JS events tracking example.</h1> 
+
+  <p><a class="click-me" id="link_1" href="#">Click Me link</a></p>
+  <p><button type="button" class="click-me" id="button_1">Click Me button</button></p> 
+  <p> 
+    <label for="text_1">Write something in the input field, and then press enter or click outside the field:</label>
+    <input type="text" class="change-me" id="text_1">
+  </p>
+
+</body>
+</html>
