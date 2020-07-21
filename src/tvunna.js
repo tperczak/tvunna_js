@@ -1,7 +1,7 @@
 /*
  * tvunna.js
  * MQTT, powerful JavaScript analytics
- * v0.0.1
+ * v0.0.2
  */
 
 (function (global, factory) {
@@ -21,8 +21,9 @@
     topicIn: "tvunna/in",    // topic to send events
     topicOut: "tvunna/out",  // topic to listen to arriving events, only used if listenTopicOut is set to true
     listenTopicOut: false,   // if listen to arriving messages
-    app_id: "demo-js",       // user application id
-    cookies: false,          // usage of visit and visitor cookies (true/false)
+    cookies: true,           // usage of visit and visitor cookies (true/false)
+    app_id: "demo-js",       // application id
+    event_type: "js"         // event type
   };
 
   var tvunna = window.tvunna || window.Tvunna || {};
@@ -281,12 +282,12 @@
     }
 
     var data = {
-      event_id: generateId(),
-      event_name: name,
       app_id: config.app_id,
+      event_name: name,
+      event_type: config.event_type,
       sent_tstamp: new Date(),
-      visit_token: visitId,
-      visitor_token: visitorId,
+      visit_id: visitId,
+      visitor_id: visitorId,
       landing_page: window.location.href,
       screen_width: window.screen.width,
       screen_height: window.screen.height,
