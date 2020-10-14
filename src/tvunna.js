@@ -12,18 +12,19 @@
 
 
   var config = {
-    host: "tvunna.io",       // MQTT broker
-    port: 8443,              // port
-    useSSL: true,            // use SSL (true/false)
-    timeout: 3,              // if the connect has not succeeded within the number of seconds, it is deemed to have failed
-    reconnectTimeout: 2,     // next attempt to reconnect after the number of seconds
-    qos: 0,                  // the Quality of Service used to deliver the message (0-best effort (default), 1-at least once, 2-exactly once)
-    topicIn: "tvunna/in",    // topic to send events
-    topicOut: "tvunna/out",  // topic to listen to arriving events, only used if listenTopicOut is set to true
-    listenTopicOut: false,   // if listen to arriving messages
-    cookies: true,           // usage of visit and visitor cookies (true/false)
-    app_id: "demo-js",       // application id
-    event_type: "js"         // event type
+    host: "tvunna.io",          // MQTT broker
+    port: 8443,                 // port
+    useSSL: true,               // use SSL (true/false)
+    timeout: 3,                 // if the connect has not succeeded within the number of seconds, it is deemed to have failed
+    reconnectTimeout: 2,        // next attempt to reconnect after the number of seconds
+    qos: 0,                     // the Quality of Service used to deliver the message (0-best effort (default), 1-at least once, 2-exactly once)
+    topicIn: "tvunna/in",       // topic to send events
+    topicOut: "tvunna/out",     // topic to listen to arriving events, only used if listenTopicOut is set to true
+    listenTopicOut: false,      // if listen to arriving messages
+    cookies: true,              // usage of visit and visitor cookies (true/false)
+    app_id: "demo-js",          // application id
+    event_type: "js",           // event type
+    event_type_custom: "js-api" // event type for custom event
   };
 
   var tvunna = window.tvunna || window.Tvunna || {};
@@ -202,7 +203,7 @@
 
   // http://beeker.io/jquery-document-ready-equivalent-vanilla-javascript
   function documentReady(callback) {
-    document.readyState === "interactive" || document.readyState === "complete" ? callback() : document.addEventListener("DOMContentLoaded", callback); 
+    document.readyState === "interactive" || document.readyState === "complete" ? callback() : document.addEventListener("DOMContentLoaded", callback);
   }
 
 
@@ -284,7 +285,6 @@
     var data = {
       app_id: config.app_id,
       event_name: name,
-      event_type: config.event_type,
       sent_tstamp: new Date(),
       visit_id: visitId,
       visitor_id: visitorId,
@@ -326,6 +326,7 @@
 
   tvunna.track = function (name, properties) {
     var data = eventData(name, properties);
+    data.event_type = config.event_type_custom;
     log("tvunna.track");
     //log(data);
     sendMessage(data);
@@ -336,6 +337,7 @@
   tvunna.trackView = function () {
     documentReady(function() {
        var data = eventData("$view");
+       data.event_type = config.event_type;
        log("tvunna.trackView");
        //log(data);
        sendMessage(data);
@@ -347,6 +349,7 @@
     onEvent("click", "a, button, input[type=submit]", function (e) {
       var target = e.target;
       var data = eventData("$click");
+      data.event_type = config.event_type;
       data.href = presence(target.href),
       data.tag = presence(target.tagName.toLowerCase()),
       data.id = presence(target.id),
@@ -364,6 +367,7 @@
     onEvent("submit", "form", function (e) {
       var target = e.target;
       var data = eventData("$submit");
+      data.event_type = config.event_type;
       data.href = presence(target.href),
       data.tag = presence(target.tagName.toLowerCase()),
       data.id = presence(target.id),
@@ -380,6 +384,7 @@
     onEvent("change", "input, textarea, select", function (e) {
       var target = e.target;
       var data = eventData("$change");
+      data.event_type = config.event_type;
       data.href = presence(target.href),
       data.tag = presence(target.tagName.toLowerCase()),
       data.id = presence(target.id),
