@@ -1,7 +1,7 @@
 /*
  * tvunna.js
  * MQTT, powerful JavaScript analytics
- * v0.0.2
+ * v0.0.3
  */
 
 (function (global, factory) {
@@ -31,8 +31,9 @@
   var mqtt;
   var eventQueue = [];
   var visitId, visitorId;
-  var visitTtl = 4 * 60; // 4 hours
+  var visitTtl = 0.5 * 60; // 0.5 hour
   var visitorTtl = 2 * 365 * 24 * 60; // 2 years
+  var mqtt_client_id = "js-"+(Math.random().toString(36)+"000000000000").substr(2,11);
 
 
   // Cookies
@@ -70,17 +71,17 @@
 
 
   // Cookies
-  function setCookie(name, value, ttl) {
+  tvunna.setCookie = function (name, value, ttl) {
     Cookies.set(name, value, ttl, config.cookieDomain || config.domain);
   }
 
 
-  function getCookie(name) {
+  tvunna.getCookie = function (name) {
     return Cookies.get(name);
   }
 
 
-  function destroyCookie(name) {
+  tvunna.destroyCookie = function (name) {
     Cookies.set(name, "", -1);
   }
 
@@ -107,13 +108,13 @@
 
 
   // tvunna_debug
-  var tvunna_debug = getCookie("tvunna_debug");
+  var tvunna_debug = tvunna.getCookie("tvunna_debug");
 
 
   //MQTT JS
   //https://www.eclipse.org/paho/clients/js/
   tvunna.MQTTconnect = function() {
-    var clientId = "js-"+(Math.random().toString(36)+"000000000000").substr(2,11);
+    var clientId = mqtt_client_id;
     var options = {
       useSSL: config.useSSL,
       timeout: config.timeout,
@@ -255,10 +256,10 @@
       visitorId = null;
     } else {
       if (!visitId) {
-        visitId = getCookie("tvunna_visit");
+        visitId = tvunna.getCookie("tvunna_visit");
       }
       if (!visitorId) {
-        visitorId = getCookie("tvunna_visitor");
+        visitorId = tvunna.getCookie("tvunna_visitor");
       }
 
       if (visitId && visitorId) {
@@ -266,15 +267,15 @@
       }	else {
           if (!visitId) {
             visitId = generateId();
-            setCookie("tvunna_visit", visitId, visitTtl);
+            tvunna.setCookie("tvunna_visit", visitId, visitTtl);
          }
          // make sure cookies are enabled
-         if (getCookie("tvunna_visit")) {
+         if (tvunna.getCookie("tvunna_visit")) {
            log("Visit started");
 
            if (!visitorId) {
               visitorId = generateId();
-              setCookie("tvunna_visitor", visitorId, visitorTtl);
+              tvunna.setCookie("tvunna_visitor", visitorId, visitorTtl);
            }
          } else {
            log("Cookies disabled");
@@ -289,8 +290,8 @@
       visit_id: visitId,
       visitor_id: visitorId,
       landing_page: window.location.href,
-      screen_width: window.screen.width,
-      screen_height: window.screen.height,
+      //screen_width: window.screen.width,
+      //screen_height: window.screen.height,
       title: presence(document.title),
       referrer: presence(document.referrer),
       user_agent: navigator.userAgent,
@@ -300,7 +301,8 @@
       "text": null,
       "class": null,
       section: null,
-      properties: properties || {}
+      properties: properties || {},
+      mqtt_client_id: mqtt_client_id
     };
     return data;
   }
@@ -315,11 +317,11 @@
 
   tvunna.debug = function (enabled) {
     if (enabled === false) {
-      destroyCookie("tvunna_debug");
+      tvunna.destroyCookie("tvunna_debug");
     } else {
-      setCookie("tvunna_debug", "t", 365 * 24 * 60); // 1 year
+      tvunna.setCookie("tvunna_debug", "t", 365 * 24 * 60); // 1 year
     }
-      tvunna_debug = getCookie("tvunna_debug");
+      tvunna_debug = tvunna.getCookie("tvunna_debug");
     return true;
   };
 
