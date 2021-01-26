@@ -119,7 +119,7 @@
       useSSL: config.useSSL,
       timeout: config.timeout,
       onSuccess: onConnect,
-      onFailure: onFailure,
+      onFailure: onFailure
     };
 
     log("connecting to: " + config.host + ":" + config.port + ", clientId: "+ clientId);
@@ -190,15 +190,17 @@
 
 
   // https://stackoverflow.com/a/2117523/1177228
-  function generateId() {
-    var h=['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
-    var k=['x','x','x','x','x','x','x','x','-','x','x','x','x','-','4','x','x','x','-','y','x','x','x','-','x','x','x','x','x','x','x','x','x','x','x','x'];
-    var u='',i=0,rb=Math.random()*0xffffffff|0;
-    while(i++<36) {
-      var c=k[i-1],r=rb&0xf,v=c=='x'?r:(r&0x3|0x8);
-      u+=(c=='-'||c=='4')?c:h[v]; rb=i%8==0?Math.random()*0xffffffff|0:rb>>4;
-    }
-    return u;
+  var lut = []; for (var i=0; i<256; i++) { lut[i] = (i<16?'0':'')+(i).toString(16); }
+  function generateId()
+  {
+    var d0 = Math.random()*0xffffffff|0;
+    var d1 = Math.random()*0xffffffff|0;
+    var d2 = Math.random()*0xffffffff|0;
+    var d3 = Math.random()*0xffffffff|0;
+    return lut[d0&0xff]+lut[d0>>8&0xff]+lut[d0>>16&0xff]+lut[d0>>24&0xff]+'-'+
+    lut[d1&0xff]+lut[d1>>8&0xff]+'-'+lut[d1>>16&0x0f|0x40]+lut[d1>>24&0xff]+'-'+
+    lut[d2&0x3f|0x80]+lut[d2>>8&0xff]+'-'+lut[d2>>16&0xff]+lut[d2>>24&0xff]+
+    lut[d3&0xff]+lut[d3>>8&0xff]+lut[d3>>16&0xff]+lut[d3>>24&0xff];
   }
 
 
@@ -285,6 +287,7 @@
 
     var data = {
       app_id: config.app_id,
+      event_id: generateId(),
       event_name: name,
       sent_tstamp: new Date(),
       visit_id: visitId,
@@ -297,9 +300,9 @@
       user_agent: navigator.userAgent,
       href: null,
       tag: null,
-      "id": null,
-      "text": null,
-      "class": null,
+      id: null,
+      text: null,
+      class_name: null,
       section: null,
       properties: properties || {},
       mqtt_client_id: mqtt_client_id
@@ -352,12 +355,12 @@
       var target = e.target;
       var data = eventData("$click");
       data.event_type = config.event_type;
-      data.href = presence(target.href),
-      data.tag = presence(target.tagName.toLowerCase()),
-      data.id = presence(target.id),
-      data.text = presence(data.tag == "input" ? target.value : (target.textContent || target.innerText || target.innerHTML).replace(/[\s\r\n]+/g, " ").trim()),
-      data.class = presence(target.className),
-      data.section = getClosestSection(target),
+      data.href = presence(target.href);
+      data.tag = presence(target.tagName.toLowerCase());
+      data.id = presence(target.id);
+      data.text = presence(data.tag == "input" ? target.value : (target.textContent || target.innerText || target.innerHTML).replace(/[\s\r\n]+/g, " ").trim());
+      data.class_name = presence(target.className);
+      data.section = getClosestSection(target);
       log("tvunna.trackClicks");
       //log(data);
       sendMessage(data);
@@ -370,11 +373,11 @@
       var target = e.target;
       var data = eventData("$submit");
       data.event_type = config.event_type;
-      data.href = presence(target.href),
-      data.tag = presence(target.tagName.toLowerCase()),
-      data.id = presence(target.id),
-      data.class = presence(target.className),
-      data.section = getClosestSection(target),
+      data.href = presence(target.href);
+      data.tag = presence(target.tagName.toLowerCase());
+      data.id = presence(target.id);
+      data.class_name = presence(target.className);
+      data.section = getClosestSection(target);
       log("tvunna.trackSubmits");
       //log(data);
       sendMessage(data);
@@ -387,12 +390,12 @@
       var target = e.target;
       var data = eventData("$change");
       data.event_type = config.event_type;
-      data.href = presence(target.href),
-      data.tag = presence(target.tagName.toLowerCase()),
-      data.id = presence(target.id),
-      data.text = presence(data.tag == "input" ? target.value : (target.textContent || target.innerText || target.innerHTML).replace(/[\s\r\n]+/g, " ").trim()),
-      data.class = presence(target.className),
-      data.section = getClosestSection(target),
+      data.href = presence(target.href);
+      data.tag = presence(target.tagName.toLowerCase());
+      data.id = presence(target.id);
+      data.text = presence(data.tag == "input" ? target.value : (target.textContent || target.innerText || target.innerHTML).replace(/[\s\r\n]+/g, " ").trim());
+      data.class_name = presence(target.className);
+      data.section = getClosestSection(target);
       log("tvunna.trackChanges");
       //log(data);
       sendMessage(data);
