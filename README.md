@@ -45,7 +45,7 @@ Set: host, port, topic to send events, application id and usage of visit and vis
 
 The event occurs once when the DOM (document object model) has been loaded and it is ready.
 
-event_name: "$view"
+event_name: "pageView"
 
     tvunna.trackView();
 
@@ -57,7 +57,7 @@ An event occurs if the user clicks on the page any item from:
   * button, tag: _\<button>_
   * submit button, tag: _\<input type="submit">_
 
-event_name: "$click"
+event_name: "click"
 
     tvunna.trackClicks();
 
@@ -65,7 +65,7 @@ event_name: "$click"
 
 An event occurs when the form is submitted
 
-event_name: "$submit"
+event_name: "submit"
 
     tvunna.trackSubmits();
 
@@ -78,7 +78,7 @@ An event occurs when the user has changed any item from:
   * drop-down list, tag: _\<select>_
 
 
-event_name: "$change" 
+event_name: "change"
 
     tvunna.trackChanges(); 
 

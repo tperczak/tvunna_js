@@ -1,7 +1,7 @@
 /*
  * tvunna.js
  * MQTT, powerful JavaScript analytics
- * v0.0.3
+ * v0.0.4
  */
 
 (function (global, factory) {
@@ -22,6 +22,7 @@
     topicOut: "tvunna/out",     // topic to listen to arriving events, only used if listenTopicOut is set to true
     listenTopicOut: false,      // if listen to arriving messages
     cookies: true,              // usage of visit and visitor cookies (true/false)
+    cookiesGenerate: false,     // generation of new cookies by tvunna.js if they do not exist (true/false)
     app_id: "demo-js",          // application id
     event_type: "js",           // event type
     event_type_custom: "js-api" // event type for custom event
@@ -267,7 +268,7 @@
       if (visitId && visitorId) {
         log("Active visit");
       }	else {
-          if (!visitId) {
+          if (!visitId && config.cookiesGenerate) {
             visitId = generateId();
             tvunna.setCookie("tvunna_visit", visitId, visitTtl);
          }
@@ -275,7 +276,7 @@
          if (tvunna.getCookie("tvunna_visit")) {
            log("Visit started");
 
-           if (!visitorId) {
+           if (!visitorId && config.cookiesGenerate) {
               visitorId = generateId();
               tvunna.setCookie("tvunna_visitor", visitorId, visitorTtl);
            }
@@ -312,8 +313,8 @@
 
 
   tvunna.reset = function () {
-    destroyCookie("tvunna_visit");
-    destroyCookie("tvunna_visitor");
+    tvunna.destroyCookie("tvunna_visit");
+    tvunna.destroyCookie("tvunna_visitor");
     return true;
   };
 
@@ -341,7 +342,7 @@
 
   tvunna.trackView = function () {
     documentReady(function() {
-       var data = eventData("$view");
+       var data = eventData("pageView");
        data.event_type = config.event_type;
        log("tvunna.trackView");
        //log(data);
@@ -351,12 +352,12 @@
 
 
   tvunna.trackClicks = function () {
-    onEvent("click", "a, button, input[type=submit]", function (e) {
+    onEvent("click", "a, button, input[type=submit], img", function (e) {
       var target = e.target;
-      var data = eventData("$click");
+      var data = eventData("click");
       data.event_type = config.event_type;
-      data.href = presence(target.href);
       data.tag = presence(target.tagName.toLowerCase());
+      data.href = presence(data.tag == "img" ? target.parentNode.href : target.href);
       data.id = presence(target.id);
       data.text = presence(data.tag == "input" ? target.value : (target.textContent || target.innerText || target.innerHTML).replace(/[\s\r\n]+/g, " ").trim());
       data.class_name = presence(target.className);
@@ -371,7 +372,7 @@
   tvunna.trackSubmits = function () {
     onEvent("submit", "form", function (e) {
       var target = e.target;
-      var data = eventData("$submit");
+      var data = eventData("submit");
       data.event_type = config.event_type;
       data.href = presence(target.href);
       data.tag = presence(target.tagName.toLowerCase());
@@ -388,7 +389,7 @@
   tvunna.trackChanges = function () {
     onEvent("change", "input, textarea, select", function (e) {
       var target = e.target;
-      var data = eventData("$change");
+      var data = eventData("change");
       data.event_type = config.event_type;
       data.href = presence(target.href);
       data.tag = presence(target.tagName.toLowerCase());
