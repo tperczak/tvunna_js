@@ -357,7 +357,14 @@
       var data = eventData("click");
       data.event_type = config.event_type;
       data.tag = presence(target.tagName.toLowerCase());
-      data.href = presence(data.tag == "img" ? target.parentNode.href : target.href);
+      if (data.tag == "img") {
+        data.href = presence(target.parentNode.href);
+        data.properties = target.parentNode.dataset;
+      }
+      else {
+        data.href = presence(target.href);
+        data.properties = target.dataset;
+      }
       data.id = presence(target.id);
       data.text = presence(data.tag == "input" ? target.value : (target.textContent || target.innerText || target.innerHTML).replace(/[\s\r\n]+/g, " ").trim());
       data.class_name = presence(target.className);
