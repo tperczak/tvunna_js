@@ -24,7 +24,7 @@
     function onMessageArrived(msg) {
       var obj = JSON.parse(msg.payloadString);
       obj.received_tstamp = new Date();
-      console.log("Message received : ", JSON.stringify(obj));
+      console.log("Message received : ", msg.destinationName, JSON.stringify(obj));
     }
 
     //Conect to the MQTT broker
@@ -34,6 +34,12 @@
     tvunna.trackAll();
 
   </script> 
+  <script>
+    function button_2_click() {
+      tvunna.track("customEvent", {customEventId: "777", customData: "XXX"}, "customSchemaId01");
+      //alert("Custom event sent");
+    }
+  </script>
 </head>
 
 
@@ -41,15 +47,16 @@
   <h1>JS events tracking example - bidirectional.</h1> 
 
   <p><a class="click-me" id="link_1" href="#">Click Me link</a></p>
-  <p><button type="button" class="click-me" id="button_1">Click Me button</button></p> 
+  <p><button type="button" class="click-me" id="button_1" data-schema_id="buttonSchemaId01">Click Me button</button></p> 
+  <p><button type="button" class="click-me-custom" id="button_2" onclick="button_2_click()">Custom event</button></p>
   <p> 
     <label for="text_1">Write something in the input field, and then press enter or click outside the field:</label>
-    <input type="text" class="change-me" id="text_1">
+    <input type="text" class="change-me" id="text_1" data-schema_id="textSchemaId01">
   </p>
 
   <form action="" id="form_1" class="form">
     <label for="select_1">Choose a color:</label>
-    <select name="colors" id="select_1" class="change-me">
+    <select name="colors" id="select_1" class="change-me" data-schema_id="selectSchemaId01">
       <option value="red">Red</option>
       <option value="green">Green</option>
       <option value="blue">Blue</option>

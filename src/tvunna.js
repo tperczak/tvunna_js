@@ -1,7 +1,7 @@
 /*
  * tvunna.js
  * MQTT, powerful JavaScript analytics
- * v0.0.4
+ * v0.0.5
  */
 
 (function (global, factory) {
@@ -24,6 +24,7 @@
     cookies: true,              // usage of visit and visitor cookies (true/false)
     cookiesGenerate: false,     // generation of new cookies by tvunna.js if they do not exist (true/false)
     app_id: "demo-js",          // application id
+    schema_id: "js0001",        // tvunna configuration schema id
     event_type: "js",           // event type
     event_type_custom: "js-api" // event type for custom event
   };
@@ -293,6 +294,7 @@
       sent_tstamp: new Date(),
       visit_id: visitId,
       visitor_id: visitorId,
+      schema_id: null,
       landing_page: window.location.href,
       //screen_width: window.screen.width,
       //screen_height: window.screen.height,
@@ -330,9 +332,10 @@
   };
 
 
-  tvunna.track = function (name, properties) {
+  tvunna.track = function (name, properties, schema_id) {
     var data = eventData(name, properties);
     data.event_type = config.event_type_custom;
+    data.schema_id = schema_id || config.schema_id;
     log("tvunna.track");
     //log(data);
     sendMessage(data);
@@ -344,6 +347,7 @@
     documentReady(function() {
        var data = eventData("pageView");
        data.event_type = config.event_type;
+       data.schema_id = config.schema_id;
        log("tvunna.trackView");
        //log(data);
        sendMessage(data);
@@ -369,6 +373,7 @@
       data.text = presence(data.tag == "input" ? target.value : (target.textContent || target.innerText || target.innerHTML).replace(/[\s\r\n]+/g, " ").trim());
       data.class_name = presence(target.className);
       data.section = getClosestSection(target);
+      data.schema_id = target.getAttribute("data-schema_id") || config.schema_id;
       log("tvunna.trackClicks");
       //log(data);
       sendMessage(data);
@@ -386,6 +391,7 @@
       data.id = presence(target.id);
       data.class_name = presence(target.className);
       data.section = getClosestSection(target);
+      data.schema_id = target.getAttribute("data-schema_id") || config.schema_id;
       log("tvunna.trackSubmits");
       //log(data);
       sendMessage(data);
@@ -404,6 +410,7 @@
       data.text = presence(data.tag == "input" ? target.value : (target.textContent || target.innerText || target.innerHTML).replace(/[\s\r\n]+/g, " ").trim());
       data.class_name = presence(target.className);
       data.section = getClosestSection(target);
+      data.schema_id = target.getAttribute("data-schema_id") || config.schema_id;
       log("tvunna.trackChanges");
       //log(data);
       sendMessage(data);
