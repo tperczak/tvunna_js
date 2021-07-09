@@ -24,7 +24,7 @@
     cookies: true,              // usage of visit and visitor cookies (true/false)
     cookiesGenerate: false,     // generation of new cookies by tvunna.js if they do not exist (true/false)
     app_id: "demo-js",          // application id
-    schema_id: "js0001",        // tvunna configuration schema id
+    schema_id: "js-default",    // can be set as HTML data-* attributes (data-schema_id) or for custom events in tvunna.track(name, properties, schema_id)
     event_type: "js",           // event type
     event_type_custom: "js-api" // event type for custom event
   };
