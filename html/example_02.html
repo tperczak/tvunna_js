@@ -6,18 +6,24 @@
 
   <title>JavaScript events</title>
   <script src="js/mqttws31.min.js" type="text/javascript"></script>
-  <script src="js/tvunna.js" type="text/javascript"></script>
+  <script src="js/tvunna.min.js" type="text/javascript"></script>
   <script type = "text/javascript" language = "javascript" >
     
     tvunna.configure( { host: "tvunna.io", // MQTT broker
                         port: 8443,        // port
                         useSSL: true,
                         topicIn: "tvunna/in",
-                        topicOut: "tvunna/out",
+                        topicOut: "tvunna/enrich", //"tvunna/out",
                         listenTopicOut: true,
-                        app_id: "demo-js",
                         cookies: true,
-                        cookiesGenerate: true
+                        cookiesGenerate: true,
+                        app_id: "demo-js",
+                        connector_id: "0",
+                        connector_name: "javascript",
+                        integration_api: false,
+                        integration_lang: "js",
+                        integration_type: "client",
+                        version: "1"                        
                       });
 
     //onMessageArrived
@@ -36,7 +42,8 @@
   </script> 
   <script>
     function button_2_click() {
-      tvunna.track("customEvent", {customEventId: "777", customData: "XXX"}, "customSchemaId01");
+      button_2.dataset.user_id = "user02"
+      tvunna.track("customEvent", {customEventId: "777", customData: "XXX"});
       //alert("Custom event sent");
     }
   </script>
@@ -47,16 +54,16 @@
   <h1>JS events tracking example - bidirectional.</h1> 
 
   <p><a class="click-me" id="link_1" href="#">Click Me link</a></p>
-  <p><button type="button" class="click-me" id="button_1" data-schema_id="buttonSchemaId01">Click Me button</button></p> 
+  <p><button type="button" class="click-me-dataset" id="button_1" data-user_id="user01" data-tracker_id="tv_cam_id_61f8f1c9dd44e" data-source_event_name="clickJSdataSet">Dataset</button></p> 
   <p><button type="button" class="click-me-custom" id="button_2" onclick="button_2_click()">Custom event</button></p>
   <p> 
     <label for="text_1">Write something in the input field, and then press enter or click outside the field:</label>
-    <input type="text" class="change-me" id="text_1" data-schema_id="textSchemaId01">
+    <input type="text" class="change-me" id="text_1" data-user_id="textUser01">
   </p>
 
-  <form action="" id="form_1" class="form">
+  <form action="" id="form_1" class="form" data-user_id="form_1_User01">
     <label for="select_1">Choose a color:</label>
-    <select name="colors" id="select_1" class="change-me" data-schema_id="selectSchemaId01">
+    <select name="colors" id="select_1" class="change-me" data-user_id="selectUser01">
       <option value="red">Red</option>
       <option value="green">Green</option>
       <option value="blue">Blue</option>
@@ -64,11 +71,10 @@
     <br><br>
 
     <label for="textarea_1">The textarea element:</label>
-    <textarea id="textarea_1" rows="4" cols="50" class="change-me">Change the text ...  </textarea>
+    <textarea id="textarea_1" rows="4" cols="50" class="change-me" data-user_id="textarea_1_User01">Change the text ...  </textarea>
     <br><br>
-    <input id="submit_1" type="submit" value="Submit" class="click-me">
+    <input id="submit_1" type="submit" value="Submit" class="click-me" data-user_id="submit_1_User01">
   </form>
-
 
 </body>
 </html>

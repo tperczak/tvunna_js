@@ -4,7 +4,7 @@ The library allows you to track visits and events on the website. Data on regist
 
 Because the MQTT protocol is bi-directional, the library allows you to receive feedback from the server in order to, e.g. personalize the page for the user.
 
-You can also enable cookies. Then, if someone lands on your website, they are assigned a visit token and a visitor token. The visit token expires after 4 hours, in which a new visit is created. Visits are useful for tracking metrics like monthly active users. The visitor token expires after 2 years.
+You can also enable cookies. Then, if someone lands on your website, they are assigned a visit token and a visitor token. The visit token expires after half an hour, in which a new visit is created. Visits are useful for tracking metrics like monthly active users. The visitor token expires after 2 years.
 
 
 ### Installation
@@ -23,14 +23,21 @@ Download and include on your page two libraries:
 
 Set: host, port, topic to send events, application id and usage of visit and visitor cookies.
 
-    tvunna.configure({ host: "tvunna.io", //MQTT broker 
-                       port: 8443, 
-                       useSSL: true, 
-                       topicIn: "tvunna/in", 
-                       app_id: "demo-js", 
-                       cookies: true, 
-                     });
-
+    tvunna.configure({ host: "tvunna.io",              // MQTT broker 
+                       port: 8443,                     // port
+                       useSSL: true,                   // use SSL (true/false)
+                       topicIn: "tvunna/in",           // topic to send events
+                       cookies: true,                  // usage of visit and visitor cookies (true/false)
+                       app_id: "demo-js",              // application id
+                       connector_id: "0",               
+                       connector_name: "javascript",
+                       integration_api: false,
+                       integration_lang: "js",
+                       integration_type: "client",
+                       version: "1"
+                    });
+                    
+                     
 ### Connect to the MQTT broker
 
     tvunna.MQTTconnect();
@@ -56,6 +63,7 @@ An event occurs if the user clicks on the page any item from:
   * link, tag: _\<a>_
   * button, tag: _\<button>_
   * submit button, tag: _\<input type="submit">_
+  * picture, tag: _\<img>_
 
 event_name: "click"
 

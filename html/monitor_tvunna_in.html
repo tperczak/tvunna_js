@@ -13,7 +13,7 @@
                         port: 8443,        // port
                         useSSL: true,
                         //topicIn: "tvunna/in",
-                        topicOut: "tvunna/#",
+                        topicOut: "tvunna/in",
                         listenTopicOut: true,
                       });
 
@@ -23,9 +23,9 @@
       received_tstamp = new Date();
       console.log("Message received: ", msg.destinationName,  JSON.stringify(obj));
       console.log("Client sent     : ", obj.time.sent_tstamp);
-      console.log("Mqtt received   : ", obj.time.mqtt_tstamp);
-      console.log("After enrichment: ", obj.time.enrich_tstamp);
-      console.log("After counters  : ", obj.time.counters_tstamp);
+      //console.log("Mqtt received   : ", obj.time.mqtt_tstamp);
+      //console.log("After enrichment: ", obj.time.enrich_tstamp);
+      //console.log("After counters  : ", obj.time.counters_tstamp);
       console.log("Monitor received: ", received_tstamp.toISOString()); 
     }
 

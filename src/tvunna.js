@@ -1,7 +1,7 @@
 /*
  * tvunna.js
  * MQTT, powerful JavaScript analytics
- * v0.0.5
+ * v0.0.6
  */
 
 (function (global, factory) {
@@ -24,10 +24,13 @@
     cookies: true,              // usage of visit and visitor cookies (true/false)
     cookiesGenerate: false,     // generation of new cookies by tvunna.js if they do not exist (true/false)
     app_id: "demo-js",          // application id
-    schema_id: "js-default",    // can be set as HTML data-* attributes (data-schema_id) or for custom events in tvunna.track(name, properties, schema_id)
-    event_type: "js",           // event type
-    event_type_custom: "js-api" // event type for custom event
-  };
+    connector_id: "0",
+    connector_name: "javascript",
+    integration_api: false,
+    integration_lang: "js",
+    integration_type: "client",
+    version: "1"
+};
 
   var tvunna = window.tvunna || window.Tvunna || {};
   var mqtt;
@@ -288,32 +291,171 @@
     }
 
     var data = {
-      app_id: config.app_id,
-      event_id: generateId(),
-      event_name: name,
-      sent_tstamp: new Date(),
-      visit_id: visitId,
-      visitor_id: visitorId,
-      schema_id: null,
-      landing_page: window.location.href,
-      //screen_width: window.screen.width,
-      //screen_height: window.screen.height,
-      title: presence(document.title),
-      referrer: presence(document.referrer),
-      user_agent: navigator.userAgent,
-      href: null,
-      tag: null,
-      id: null,
-      text: null,
-      class_name: null,
-      section: null,
-      properties: properties || {},
-      mqtt_client_id: mqtt_client_id
+      time: {
+        sent_tstamp: new Date()
+      },
+      tvunna_config: {
+        app_id:           config.app_id,
+        connector_id:     config.connector_id,
+        connector_name:   config.connector_name,
+        integration_api:  config.integration_api,
+        integration_lang: config.integration_lang,
+        integration_type: config.integration_type,
+        version:          config.version
+      },
+      event: {
+        keys: {
+        event_id: generateId(),
+        source_event_name: name
+        },
+        data: {}
+      },
+      person: {
+        keys: {
+          visitor_id: visitorId,
+          user_id: ""
+        },
+        data: {}
+      },
+      items: {
+        keys: {},
+        data: {}
+      },
+      context: {
+        keys: {
+          visit_id: visitId,
+          tracker_id: ""
+        },
+        data: {}
+      },
+      captured_data_payload: {
+        properties: properties || {},
+        dataset: {},
+        landing_page: window.location.href,
+        //screen_width: window.screen.width,
+        //screen_height: window.screen.height,
+        title: presence(document.title),
+        referrer: presence(document.referrer),
+        user_agent: navigator.userAgent,
+        href: null,
+        tag: null,
+        id: null,
+        text: null,
+        class_name: null,
+        mqtt_client_id: mqtt_client_id
+      }
     };
     return data;
   }
 
 
+  // Load predefined dataset values
+  function loadDataSet(data, payload) {
+    if ("user_id" in payload.dataset) {
+      data.person.keys.user_id = payload.dataset.user_id;
+    }
+    if ("tracker_id" in payload.dataset) {
+      data.context.keys.tracker_id = payload.dataset.tracker_id;
+    }
+    if ("source_event_name" in payload.dataset) {
+      data.event.keys.source_event_name = payload.dataset.source_event_name;
+    }
+  }
+
+
+  tvunna.track = function (name, properties) {
+    var data = eventData(name, properties);
+    log("tvunna.track");
+    //log(data);
+    sendMessage(data);
+    return true;
+  };
+
+
+  tvunna.trackView = function () {
+    documentReady(function() {
+       var data = eventData("pageViewJS");
+       log("tvunna.trackView");
+       //log(data);
+       sendMessage(data);
+    });
+  };
+
+
+  tvunna.trackClicks = function () {
+    onEvent("click", "a, button, input[type=submit], img", function (e) {
+      var target = e.target;
+      var data = eventData("clickJS");
+      var payload = data.captured_data_payload;
+
+      payload.tag = presence(target.tagName.toLowerCase());
+      if (payload.tag == "img") {
+        payload.href = presence(target.parentNode.href);
+        payload.dataset = target.parentNode.dataset;
+      }
+      else {
+        payload.href = presence(target.href);
+        payload.dataset = target.dataset;
+      }
+      payload.id = presence(target.id);
+      payload.class_name = presence(target.className);
+      payload.text = presence(payload.tag == "input" ? target.value : (target.textContent || target.innerText || target.innerHTML).replace(/[\s\r\n]+/g, " ").trim());
+      loadDataSet(data, payload)
+      log("tvunna.trackClicks");
+      //log(data);
+      sendMessage(data);
+    });
+  };
+
+
+  tvunna.trackSubmits = function () {
+    onEvent("submit", "form", function (e) {
+      var target = e.target;
+      var data = eventData("submitJS");
+      var payload = data.captured_data_payload;
+
+      payload.tag = presence(target.tagName.toLowerCase());
+      payload.href = presence(target.href);
+      payload.dataset = target.dataset;
+      payload.id = presence(target.id);
+      payload.class_name = presence(target.className);
+      loadDataSet(data, payload)
+      log("tvunna.trackSubmits");
+      //log(data);
+      sendMessage(data);
+    });
+  };
+
+
+  tvunna.trackChanges = function () {
+    onEvent("change", "input, textarea, select", function (e) {
+      var target = e.target;
+      var data = eventData("changeJS");
+      var payload = data.captured_data_payload;
+
+      payload.tag = presence(target.tagName.toLowerCase());
+      payload.href = presence(target.href);
+      payload.dataset = target.dataset;
+      payload.id = presence(target.id);
+      payload.class_name = presence(target.className);
+      payload.text = presence(target.value)
+      loadDataSet(data, payload);
+      log("tvunna.trackChanges");
+      //log(data);
+      sendMessage(data);
+    });
+  };
+
+
+  tvunna.trackAll = function() {
+    tvunna.trackView();
+    tvunna.trackClicks();
+    tvunna.trackSubmits();
+    tvunna.trackChanges();
+  };
+
+
+  // Debug
   tvunna.reset = function () {
     tvunna.destroyCookie("tvunna_visit");
     tvunna.destroyCookie("tvunna_visitor");
@@ -330,101 +472,6 @@
       tvunna_debug = tvunna.getCookie("tvunna_debug");
     return true;
   };
-
-
-  tvunna.track = function (name, properties, schema_id) {
-    var data = eventData(name, properties);
-    data.event_type = config.event_type_custom;
-    data.schema_id = schema_id || config.schema_id;
-    log("tvunna.track");
-    //log(data);
-    sendMessage(data);
-    return true;
-  };
-
-
-  tvunna.trackView = function () {
-    documentReady(function() {
-       var data = eventData("pageView");
-       data.event_type = config.event_type;
-       data.schema_id = config.schema_id;
-       log("tvunna.trackView");
-       //log(data);
-       sendMessage(data);
-    });
-  };
-
-
-  tvunna.trackClicks = function () {
-    onEvent("click", "a, button, input[type=submit], img", function (e) {
-      var target = e.target;
-      var data = eventData("click");
-      data.event_type = config.event_type;
-      data.tag = presence(target.tagName.toLowerCase());
-      if (data.tag == "img") {
-        data.href = presence(target.parentNode.href);
-        data.properties = target.parentNode.dataset;
-      }
-      else {
-        data.href = presence(target.href);
-        data.properties = target.dataset;
-      }
-      data.id = presence(target.id);
-      data.text = presence(data.tag == "input" ? target.value : (target.textContent || target.innerText || target.innerHTML).replace(/[\s\r\n]+/g, " ").trim());
-      data.class_name = presence(target.className);
-      data.section = getClosestSection(target);
-      data.schema_id = target.getAttribute("data-schema_id") || config.schema_id;
-      log("tvunna.trackClicks");
-      //log(data);
-      sendMessage(data);
-    });
-  };
-
-
-  tvunna.trackSubmits = function () {
-    onEvent("submit", "form", function (e) {
-      var target = e.target;
-      var data = eventData("submit");
-      data.event_type = config.event_type;
-      data.href = presence(target.href);
-      data.tag = presence(target.tagName.toLowerCase());
-      data.id = presence(target.id);
-      data.class_name = presence(target.className);
-      data.section = getClosestSection(target);
-      data.schema_id = target.getAttribute("data-schema_id") || config.schema_id;
-      log("tvunna.trackSubmits");
-      //log(data);
-      sendMessage(data);
-    });
-  };
-
-
-  tvunna.trackChanges = function () {
-    onEvent("change", "input, textarea, select", function (e) {
-      var target = e.target;
-      var data = eventData("change");
-      data.event_type = config.event_type;
-      data.href = presence(target.href);
-      data.tag = presence(target.tagName.toLowerCase());
-      data.id = presence(target.id);
-      data.text = presence(data.tag == "input" ? target.value : (target.textContent || target.innerText || target.innerHTML).replace(/[\s\r\n]+/g, " ").trim());
-      data.class_name = presence(target.className);
-      data.section = getClosestSection(target);
-      data.schema_id = target.getAttribute("data-schema_id") || config.schema_id;
-      log("tvunna.trackChanges");
-      //log(data);
-      sendMessage(data);
-    });
-  };
-
-
-  tvunna.trackAll = function() {
-    tvunna.trackView();
-    tvunna.trackClicks();
-    tvunna.trackSubmits();
-    tvunna.trackChanges();
-  };
-
 
   return tvunna;
 

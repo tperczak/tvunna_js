@@ -13,9 +13,15 @@
                         port: 8443,        // port
                         useSSL: true,
                         topicIn: "tvunna/in",
-                        app_id: "demo-js",
                         cookies: true,
-                        cookiesGenerate: true
+                        cookiesGenerate: true,
+                        app_id: "demo-js",
+                        connector_id: "0",
+                        connector_name: "javascript",
+                        integration_api: false,
+                        integration_lang: "js",
+                        integration_type: "client",
+                        version: "1"                         
                       });
      
     //Conect to the MQTT broker
@@ -31,11 +37,11 @@
 <body>
   <h1>JS events tracking example.</h1> 
 
-  <p><a class="click-me" id="link_1" href="#">Click Me link</a></p>
-  <p><button type="button" class="click-me" id="button_1">Click Me button</button></p> 
+  <p><a class="click-me" id="link_1" href="#" data-tracker_id="link_1_tracker" data-user_id="link_1_user">Click Me link</a></p>
+  <p><button type="button" class="click-me" id="button_1" data-tracker_id="button_1_tracker" data-user_id="button_1_user">Click Me button</button></p> 
   <p> 
     <label for="text_1">Write something in the input field, and then press enter or click outside the field:</label>
-    <input type="text" class="change-me" id="text_1">
+    <input type="text" class="change-me" id="text_1" data-tracker_id="text_1_tracker" data-user_id="text_1_user">
   </p>
 
 </body>
