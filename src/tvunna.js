@@ -368,7 +368,7 @@
     log("tvunna.track");
     //log(data);
     sendMessage(data);
-    return true;
+    return data["event"]["keys"]["event_id"];
   };
 
 
